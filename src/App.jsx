@@ -235,13 +235,19 @@ export default function App() {
     const nextIdx = currentIndex + 1
     if (nextIdx >= queue.length) {
       // Round finished
-      const newFailedIds = [...failedIds]
-      roundFailedIds.forEach(id => {
-        if (!newFailedIds.includes(id)) {
-          newFailedIds.push(id)
-        }
-      })
-      setFailedIds(newFailedIds)
+      if (isReviewMode) {
+        // In review mode, only keep questions that failed in this round
+        setFailedIds(roundFailedIds)
+      } else {
+        // In normal mode, add this round's failures to the overall failed list
+        const newFailedIds = [...failedIds]
+        roundFailedIds.forEach(id => {
+          if (!newFailedIds.includes(id)) {
+            newFailedIds.push(id)
+          }
+        })
+        setFailedIds(newFailedIds)
+      }
       setScreen('result')
     } else {
       setCurrentIndex(nextIdx)
