@@ -693,6 +693,85 @@ kbd {
   }
 }
 
+/* ========== Header ========== */
+
+.app-header {
+  width: 100%;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  justify-content: center;
+}
+
+.header-controls {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.language-switcher {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.lang-btn {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+  border: 2px solid var(--color-border);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.lang-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.lang-btn.active {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.dark-mode-toggle {
+  background: none;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.2s ease;
+}
+
+.dark-mode-toggle:hover {
+  border-color: var(--color-primary);
+  transform: scale(1.1);
+}
+
+/* ========== Dark Mode ========== */
+
+.app.dark-mode {
+  --color-bg: #1a1a2e;
+  --color-surface: #2d2d44;
+  --color-surface-alt: #3a3a52;
+  --color-text: #e0e0e0;
+  --color-text-muted: #a0a0b0;
+  --color-border: #4a4a62;
+}
+
+.app.dark-mode .modal-backdrop {
+  background: rgba(0, 0, 0, 0.75);
+}
+
 /* ========== Custom Questions ==========  */
 
 .custom-questions-section {

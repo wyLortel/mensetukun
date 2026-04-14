@@ -1,5 +1,106 @@
 import { useState, useRef, useEffect } from 'react'
 
+// ========== Translations ==========
+
+const TRANSLATIONS = {
+  ja: {
+    appTitle: '面接練習アプリ',
+    appSubtitle: '新卒エンジニア採用試験の面接練習',
+    howToUse: '使い方',
+    rule1: '「開始する」ボタンを押すと、質問がランダムに表示されます。',
+    rule2: '制限時間は質問ごとに異なります。',
+    rule3: '話せなかった質問はあとでまとめて復習できます。',
+    rule4: 'ページを閉じると記録は保存されません。',
+    keyboardShortcuts: 'キーボード操作（任意）',
+    start: '開始する',
+    addQuestion: '+ 質問を追加',
+    customQuestions: 'カスタム質問',
+    question: '問題',
+    spoke: '話せた',
+    couldntSpeak: '話せなかった',
+    failedQuestions: '話せなかった質問',
+    reviewMode: '復習モード',
+    normalPractice: '通常練習',
+    remainingTime: '残り時間',
+    timeLimit: '制限時間',
+    timeIsUp: '時間です',
+    didYouSpeak: 'うまく話せましたか？',
+    sorry: '惜しいです',
+    encouragementMsg: 'うまく話せなかった質問はあとで復習できます。気持ちを切り替えて次に進みましょう。',
+    next: '次へ進む',
+    paused: '一時停止中 — スペースキーで再開',
+    roundComplete: 'ラウンド完了',
+    reviewComplete: '復習完了',
+    totalQuestions: '全質問数',
+    speaking: '話せた',
+    notSpeaking: '話せなかった',
+    successRate: '成功率',
+    encouragement: 'まだ伸びしろがあります。話せなかった質問をもう一度練習してみましょう。',
+    allClear: 'お疲れさまでした。すべての質問を最後まで練習できました！',
+    reviewDone: 'お疲れさまでした。復習を完了しました！',
+    reviewAgain: '話せなかった質問だけもう一度',
+    restart: '最初からやり直す',
+    addQuestionTitle: '質問を追加',
+    questionText: '質問文',
+    questionPlaceholder: '質問を入力してください',
+    timeLimit: '制限時間',
+    sixtySeconds: '60秒',
+    ninetySeconds: '90秒',
+    cancel: 'キャンセル',
+    add: '追加',
+    failedList: '話せなかった質問一覧',
+    failedQuestionsList: '話せなかった質問一覧',
+  },
+  ko: {
+    appTitle: '면접 연습 앱',
+    appSubtitle: '신입 엔지니어 채용 시험 면접 연습',
+    howToUse: '사용 방법',
+    rule1: '「시작하기」 버튼을 누르면 질문이 무작위로 표시됩니다.',
+    rule2: '제한 시간은 질문마다 다릅니다.',
+    rule3: '답하지 못한 질문은 나중에 정리하여 복습할 수 있습니다.',
+    rule4: '페이지를 닫으면 기록이 저장되지 않습니다.',
+    keyboardShortcuts: '키보드 작동 (선택)',
+    start: '시작하기',
+    addQuestion: '+ 질문 추가',
+    customQuestions: '사용자 정의 질문',
+    question: '문제',
+    spoke: '답했음',
+    couldntSpeak: '답하지 못함',
+    failedQuestions: '답하지 못한 질문',
+    reviewMode: '복습 모드',
+    normalPractice: '일반 연습',
+    remainingTime: '남은 시간',
+    timeLimit: '제한 시간',
+    timeIsUp: '시간이 다 되었습니다',
+    didYouSpeak: '잘 말했나요?',
+    sorry: '아쉽네요',
+    encouragementMsg: '잘 말하지 못한 질문은 나중에 복습할 수 있습니다. 기분 전환하고 다음으로 넘어가세요.',
+    next: '다음으로',
+    paused: '일시 정지 중 — 스페이스바로 재개',
+    roundComplete: '라운드 완료',
+    reviewComplete: '복습 완료',
+    totalQuestions: '전체 질문 수',
+    speaking: '답했음',
+    notSpeaking: '답하지 못함',
+    successRate: '성공률',
+    encouragement: '아직 성장할 여지가 있습니다. 답하지 못한 질문을 다시 한 번 연습해 보세요.',
+    allClear: '수고하셨습니다. 모든 질문을 끝까지 연습할 수 있었습니다!',
+    reviewDone: '수고하셨습니다. 복습을 완료했습니다!',
+    reviewAgain: '답하지 못한 질문만 다시 한 번',
+    restart: '처음부터 다시 시작',
+    addQuestionTitle: '질문 추가',
+    questionText: '질문 텍스트',
+    questionPlaceholder: '질문을 입력하세요',
+    timeLimit: '제한 시간',
+    sixtySeconds: '60초',
+    ninetySeconds: '90초',
+    cancel: '취소',
+    add: '추가',
+    failedList: '답하지 못한 질문 목록',
+    failedQuestionsList: '답하지 못한 질문 목록',
+  },
+}
+
 // ========== Data ==========
 
 const QUESTIONS = [
@@ -54,8 +155,13 @@ export default function App() {
   const [newQuestion, setNewQuestion] = useState('')
   const [newDuration, setNewDuration] = useState(60)
 
+  const [language, setLanguage] = useState('ja') // 'ja' or 'ko'
+  const [darkMode, setDarkMode] = useState(false)
+
   const intervalRef = useRef(null)
   const nextCustomIdRef = useRef(1000) // Custom questions start from 1000
+
+  const t = TRANSLATIONS[language]
 
   // ========== Handlers ==========
 
@@ -234,7 +340,15 @@ export default function App() {
   // ========== Render ==========
 
   return (
-    <div className="app">
+    <div className={`app ${darkMode ? 'dark-mode' : ''}`}>
+      <Header
+        language={language}
+        onLanguageChange={setLanguage}
+        darkMode={darkMode}
+        onDarkModeToggle={() => setDarkMode(!darkMode)}
+        t={t}
+      />
+
       {screen === 'start' && (
         <StartScreen
           onStart={startPractice}
@@ -248,6 +362,7 @@ export default function App() {
           onNewQuestionChange={setNewQuestion}
           newDuration={newDuration}
           onNewDurationChange={setNewDuration}
+          t={t}
         />
       )}
       {screen === 'practice' && (
@@ -269,6 +384,7 @@ export default function App() {
           onTimerExpiredSpeak={handleTimerExpiredSpeak}
           onTimerExpiredFail={handleTimerExpiredFail}
           onReset={handleReset}
+          t={t}
         />
       )}
       {screen === 'result' && (
@@ -280,6 +396,7 @@ export default function App() {
           isReviewMode={isReviewMode}
           onReview={startReview}
           onReset={handleReset}
+          t={t}
         />
       )}
     </div>
@@ -287,6 +404,36 @@ export default function App() {
 }
 
 // ========== Components ==========
+
+function Header({ language, onLanguageChange, darkMode, onDarkModeToggle, t }) {
+  return (
+    <header className="app-header">
+      <div className="header-controls">
+        <div className="language-switcher">
+          <button
+            className={`lang-btn ${language === 'ja' ? 'active' : ''}`}
+            onClick={() => onLanguageChange('ja')}
+          >
+            日本語
+          </button>
+          <button
+            className={`lang-btn ${language === 'ko' ? 'active' : ''}`}
+            onClick={() => onLanguageChange('ko')}
+          >
+            한국어
+          </button>
+        </div>
+        <button
+          className="dark-mode-toggle"
+          onClick={onDarkModeToggle}
+          title={darkMode ? 'Light Mode' : 'Dark Mode'}
+        >
+          {darkMode ? '☀️' : '🌙'}
+        </button>
+      </div>
+    </header>
+  )
+}
 
 function StartScreen({
   onStart,
@@ -300,45 +447,46 @@ function StartScreen({
   onNewQuestionChange,
   newDuration,
   onNewDurationChange,
+  t,
 }) {
   return (
     <div className="screen screen-start">
       <div className="content-box">
-        <h1 className="title">面接練習アプリ</h1>
-        <div className="subtitle">新卒エンジニア採用試験の面接練習</div>
+        <h1 className="title">{t.appTitle}</h1>
+        <div className="subtitle">{t.appSubtitle}</div>
 
         <div className="instructions-section">
-          <h2 className="section-title">使い方</h2>
+          <h2 className="section-title">{t.howToUse}</h2>
           <ul className="instructions-list">
-            <li>「開始する」ボタンを押すと、質問がランダムに表示されます。</li>
-            <li>制限時間は質問ごとに異なります。</li>
-            <li>話せなかった質問はあとでまとめて復習できます。</li>
-            <li>ページを閉じると記録は保存されません。</li>
+            <li>{t.rule1}</li>
+            <li>{t.rule2}</li>
+            <li>{t.rule3}</li>
+            <li>{t.rule4}</li>
           </ul>
         </div>
 
         <div className="shortcuts-section">
-          <h3 className="section-title-small">キーボード操作（任意）</h3>
+          <h3 className="section-title-small">{t.keyboardShortcuts}</h3>
           <ul className="shortcuts-list">
-            <li><kbd>Space</kbd> タイマーの一時停止 / 再開</li>
-            <li><kbd>Enter</kbd> 次の質問へ進む</li>
-            <li><kbd>R</kbd> 最初からやり直す</li>
+            <li><kbd>Space</kbd> {t.remainingTime}</li>
+            <li><kbd>Enter</kbd> {t.next}</li>
+            <li><kbd>R</kbd> {t.restart}</li>
           </ul>
         </div>
 
         {customQuestions.length > 0 && (
           <div className="custom-questions-section">
-            <h3 className="section-title-small">カスタム質問 ({customQuestions.length}個)</h3>
+            <h3 className="section-title-small">{t.customQuestions} ({customQuestions.length})</h3>
             <div className="custom-questions-list">
               {customQuestions.map((q) => (
                 <div key={q.id} className="custom-question-item">
                   <div className="custom-question-text">{q.text}</div>
                   <div className="custom-question-meta">
-                    <span className="custom-duration">{q.duration}秒</span>
+                    <span className="custom-duration">{q.duration}s</span>
                     <button
                       className="btn-delete-custom"
                       onClick={() => onDeleteCustom(q.id)}
-                      title="削除"
+                      title="Delete"
                     >
                       ✕
                     </button>
@@ -350,11 +498,11 @@ function StartScreen({
         )}
 
         <button className="btn btn-secondary btn-large" onClick={onOpenAddModal}>
-          + 質問を追加
+          {t.addQuestion}
         </button>
 
         <button className="btn btn-primary btn-large" onClick={onStart}>
-          開始する
+          {t.start}
         </button>
 
         {showAddModal && (
@@ -365,6 +513,7 @@ function StartScreen({
             onQuestionChange={onNewQuestionChange}
             duration={newDuration}
             onDurationChange={onNewDurationChange}
+            t={t}
           />
         )}
       </div>
@@ -390,6 +539,7 @@ function PracticeScreen({
   onTimerExpiredSpeak,
   onTimerExpiredFail,
   onReset,
+  t,
 }) {
   if (!question) return null
 
@@ -403,6 +553,7 @@ function PracticeScreen({
         totalQuestions={totalQuestions}
         isReviewMode={isReviewMode}
         failedCount={failedCount}
+        t={t}
       />
 
       <QuestionCard question={question} durationSeconds={durationSeconds} />
@@ -410,16 +561,16 @@ function PracticeScreen({
       <TimerBar timeLeft={timeLeft} duration={durationSeconds} />
 
       <div className="time-display">
-        残り時間: <strong>{timeLeft}</strong> 秒
+        {t.remainingTime}: <strong>{timeLeft}</strong> s
       </div>
 
       {!timerExpired && !showEncouragement && (
         <div className="action-buttons">
           <button className="btn btn-success" onClick={onSpeak}>
-            話せた
+            {t.spoke}
           </button>
           <button className="btn btn-danger" onClick={onFail}>
-            話せなかった
+            {t.couldntSpeak}
           </button>
         </div>
       )}
@@ -427,14 +578,14 @@ function PracticeScreen({
       {timerExpired && !showEncouragement && (
         <div className="timer-expired-overlay">
           <div className="timer-expired-content">
-            <h2>時間です</h2>
-            <p>うまく話せましたか？</p>
+            <h2>{t.timeIsUp}</h2>
+            <p>{t.didYouSpeak}</p>
             <div className="action-buttons">
               <button className="btn btn-success" onClick={onTimerExpiredSpeak}>
-                話せた
+                {t.spoke}
               </button>
               <button className="btn btn-danger" onClick={onTimerExpiredFail}>
-                話せなかった
+                {t.couldntSpeak}
               </button>
             </div>
           </div>
@@ -442,31 +593,31 @@ function PracticeScreen({
       )}
 
       {showEncouragement && (
-        <EncouragementModal onClose={onEncouragementClose} />
+        <EncouragementModal onClose={onEncouragementClose} t={t} />
       )}
 
-      {isPaused && <PauseBanner />}
+      {isPaused && <PauseBanner t={t} />}
 
-      <FailedList failedIds={roundFailedIds} questions={questions} />
+      <FailedList failedIds={roundFailedIds} questions={questions} t={t} />
 
       <div className="reset-button-container">
         <button className="btn btn-secondary btn-small" onClick={onReset}>
-          最初からやり直す
+          {t.restart}
         </button>
       </div>
     </div>
   )
 }
 
-function ProgressHeader({ currentIndex, totalQuestions, isReviewMode, failedCount }) {
+function ProgressHeader({ currentIndex, totalQuestions, isReviewMode, failedCount, t }) {
   return (
     <div className="progress-header">
       <div className="progress-info">
         <span className="progress-text">
-          {isReviewMode ? '復習モード' : '通常練習'} • 問題 {currentIndex + 1} / {totalQuestions}
+          {isReviewMode ? t.reviewMode : t.normalPractice} • {t.question} {currentIndex + 1} / {totalQuestions}
         </span>
         {failedCount > 0 && (
-          <span className="failed-badge">失敗: {failedCount}問</span>
+          <span className="failed-badge">{t.couldntSpeak}: {failedCount}</span>
         )}
       </div>
     </div>
@@ -507,32 +658,31 @@ function TimerBar({ timeLeft, duration }) {
   )
 }
 
-function EncouragementModal({ onClose }) {
+function EncouragementModal({ onClose, t }) {
   return (
     <div className="modal-backdrop">
       <div className="modal">
-        <h2 className="modal-title">惜しいです</h2>
+        <h2 className="modal-title">{t.sorry}</h2>
         <p className="modal-message">
-          うまく話せなかった質問はあとで復習できます。<br />
-          気持ちを切り替えて次に進みましょう。
+          {t.encouragementMsg}
         </p>
         <button className="btn btn-primary" onClick={onClose}>
-          次へ進む
+          {t.next}
         </button>
       </div>
     </div>
   )
 }
 
-function PauseBanner() {
+function PauseBanner({ t }) {
   return (
     <div className="pause-banner">
-      一時停止中 — スペースキーで再開
+      {t.paused}
     </div>
   )
 }
 
-function FailedList({ failedIds, questions }) {
+function FailedList({ failedIds, questions, t }) {
   if (failedIds.length === 0) return null
 
   const failedQuestions = questions.filter(q => failedIds.includes(q.id))
@@ -541,7 +691,7 @@ function FailedList({ failedIds, questions }) {
     <div className="failed-list-section">
       <details className="failed-list">
         <summary className="failed-list-summary">
-          話せなかった質問 ({failedIds.length}問)
+          {t.failedQuestions} ({failedIds.length})
         </summary>
         <div className="failed-list-content">
           {failedQuestions.map((q, idx) => (
@@ -564,6 +714,7 @@ function ResultScreen({
   isReviewMode,
   onReview,
   onReset,
+  t,
 }) {
   const successCount = totalQuestions - roundFailedIds.length
   const successPercent = totalQuestions > 0
@@ -577,24 +728,24 @@ function ResultScreen({
     <div className="screen screen-result">
       <div className="content-box">
         <h1 className="result-title">
-          {isReviewMode ? '復習完了' : 'ラウンド完了'}
+          {isReviewMode ? t.reviewComplete : t.roundComplete}
         </h1>
 
         <div className="result-stats">
           <div className="stat-item">
-            <div className="stat-label">全質問数</div>
+            <div className="stat-label">{t.totalQuestions}</div>
             <div className="stat-value">{totalQuestions}</div>
           </div>
           <div className="stat-item">
-            <div className="stat-label">話せた</div>
+            <div className="stat-label">{t.speaking}</div>
             <div className="stat-value stat-success">{successCount}</div>
           </div>
           <div className="stat-item">
-            <div className="stat-label">話せなかった</div>
+            <div className="stat-label">{t.notSpeaking}</div>
             <div className="stat-value stat-danger">{roundFailedIds.length}</div>
           </div>
           <div className="stat-item">
-            <div className="stat-label">成功率</div>
+            <div className="stat-label">{t.successRate}</div>
             <div className="stat-value">{successPercent}%</div>
           </div>
         </div>
@@ -602,7 +753,7 @@ function ResultScreen({
         {roundFailedIds.length > 0 && !isReviewMode && (
           <div className="result-message">
             <p className="message-text">
-              まだ伸びしろがあります。話せなかった質問をもう一度練習してみましょう。
+              {t.encouragement}
             </p>
           </div>
         )}
@@ -610,7 +761,7 @@ function ResultScreen({
         {roundFailedIds.length === 0 && !isReviewMode && (
           <div className="result-message result-success">
             <p className="message-text">
-              お疲れさまでした。すべての質問を最後まで練習できました！
+              {t.allClear}
             </p>
           </div>
         )}
@@ -618,14 +769,14 @@ function ResultScreen({
         {roundFailedIds.length === 0 && isReviewMode && (
           <div className="result-message result-success">
             <p className="message-text">
-              お疲れさまでした。復習を完了しました！
+              {t.reviewDone}
             </p>
           </div>
         )}
 
         {showReview && failedQuestions.length > 0 && (
           <div className="failed-questions-final">
-            <h2 className="section-title">話せなかった質問一覧</h2>
+            <h2 className="section-title">{t.failedQuestionsList}</h2>
             <div className="failed-list-final">
               {failedQuestions.map((q, idx) => (
                 <div key={q.id} className="failed-item-final">
@@ -638,10 +789,10 @@ function ResultScreen({
 
         <div className="result-actions">
           {showReview && <button className="btn btn-primary" onClick={onReview}>
-            話せなかった質問だけもう一度
+            {t.reviewAgain}
           </button>}
           <button className="btn btn-secondary" onClick={onReset}>
-            最初からやり直す
+            {t.restart}
           </button>
         </div>
       </div>
@@ -656,6 +807,7 @@ function AddQuestionModal({
   onQuestionChange,
   duration,
   onDurationChange,
+  t,
 }) {
   const handleAddClick = () => {
     if (questionText.trim()) {
@@ -672,20 +824,20 @@ function AddQuestionModal({
   return (
     <div className="modal-backdrop">
       <div className="modal modal-add-question">
-        <h2 className="modal-title">質問を追加</h2>
+        <h2 className="modal-title">{t.addQuestionTitle}</h2>
         <div className="form-group">
-          <label htmlFor="question-input" className="form-label">質問文</label>
+          <label htmlFor="question-input" className="form-label">{t.questionText}</label>
           <textarea
             id="question-input"
             className="form-textarea"
-            placeholder="質問を入力してください"
+            placeholder={t.questionPlaceholder}
             value={questionText}
             onChange={(e) => onQuestionChange(e.target.value)}
             onKeyDown={handleKeyDown}
           />
         </div>
         <div className="form-group">
-          <label htmlFor="duration-input" className="form-label">制限時間</label>
+          <label htmlFor="duration-input" className="form-label">{t.timeLimit}</label>
           <div className="duration-options">
             <label className="radio-label">
               <input
@@ -695,7 +847,7 @@ function AddQuestionModal({
                 checked={duration === 60}
                 onChange={(e) => onDurationChange(parseInt(e.target.value))}
               />
-              60秒
+              {t.sixtySeconds}
             </label>
             <label className="radio-label">
               <input
@@ -705,20 +857,20 @@ function AddQuestionModal({
                 checked={duration === 90}
                 onChange={(e) => onDurationChange(parseInt(e.target.value))}
               />
-              90秒
+              {t.ninetySeconds}
             </label>
           </div>
         </div>
         <div className="modal-actions">
           <button className="btn btn-secondary" onClick={onClose}>
-            キャンセル
+            {t.cancel}
           </button>
           <button
             className="btn btn-primary"
             onClick={handleAddClick}
             disabled={!questionText.trim()}
           >
-            追加
+            {t.add}
           </button>
         </div>
       </div>
